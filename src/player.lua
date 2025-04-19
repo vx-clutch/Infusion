@@ -1,16 +1,6 @@
 local player = {}
-player.money = 0
-
-function player.add(k)
-	player.money = player.money + k
-end
-
-function player.sub(k)
-	player.money = player.money - k
-end
-
-function player.set(k)
-	player.money = k
-end
+player.tea = 0
+player.leaves = 0
+player.AutoTeapot = false
 
 return player

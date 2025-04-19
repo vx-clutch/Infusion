@@ -1,30 +1,49 @@
 local save = {}
-local saveFile = "save.txt"
+
+local saveFile = "save.csv"
 local saveDir = love.filesystem.getSaveDirectory() .. "/save_data/"
 local savePath = saveDir .. saveFile
 
-function save.load()
-    local file, err = love.filesystem.read(savePath)
-    if file then
-        return tonumber(file) or 0
-    else
-        return 0
-    end
-end
-
 function save.save()
     local player = require("src.player")
-    local data = tostring(player.money)
+    local data = {
+        tostring(player.tea),
+        tostring(player.leaves),
+    }
 
-    -- Ensure the directory exists
+    -- Convert to CSV string
+    local csvLine = table.concat(data, ",")
+
     if not love.filesystem.getInfo(saveDir) then
         love.filesystem.createDirectory(saveDir)
     end
 
-    local success, err = love.filesystem.write(savePath, data)
+    local success, err = love.filesystem.write(savePath, csvLine)
     if not success then
         print("Error saving data: " .. err)
     end
+end
+
+function save.load()
+    if not love.filesystem.getInfo(savePath) then
+        print("No save file found.")
+        return
+    end
+
+    local content, size = love.filesystem.read(savePath)
+    if not content then
+        print("Error reading save file.")
+        return
+    end
+
+    local fields = {}
+    for value in string.gmatch(content, "([^,]+)") do
+        table.insert(fields, value)
+    end
+
+    local player = require("src.player")
+    player.tea = tonumber(fields[1]) or 0
+    player.leaves = tonumber(fields[2]) or 0
 end
 
 return save
